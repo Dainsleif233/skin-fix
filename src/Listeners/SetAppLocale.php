@@ -4,7 +4,6 @@ namespace SysHub\BSFix\Listeners;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class SetAppLocale
 {
@@ -42,11 +41,19 @@ class SetAppLocale
             return null;
         }
 
-        $info = Arr::get(config('locales'), $locale);
-        if (is_array($info) && ($alias = Arr::get($info, 'alias'))) {
-            $locale = $alias;
+        $available = config('locales', []);
+
+        // Exact key match only. Arr::has() and Arr::get() treat "." as a path
+        // separator, so "zh_CN.name" resolves to config('locales')['zh_CN']['name']
+        // and passes the check; the value is then persisted and every page render
+        // for that account fails in Yaml::parse().
+        if (!array_key_exists($locale, $available)) {
+            return null;
         }
 
-        return Arr::has(config('locales'), $locale) ? $locale : null;
+        $info = $available[$locale];
+        $alias = is_array($info) ? ($info['alias'] ?? null) : null;
+
+        return is_string($alias) && array_key_exists($alias, $available) ? $alias : $locale;
     }
 }

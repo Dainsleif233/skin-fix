@@ -4,7 +4,6 @@ namespace SysHub\BSFix\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class SanitizeLang
 {
@@ -20,6 +19,9 @@ class SanitizeLang
 
     protected function isValid($locale): bool
     {
-        return is_string($locale) && Arr::has(config('locales'), $locale);
+        // array_key_exists(), not Arr::has(). Arr::has() treats its argument as a
+        // dot path, so "zh_CN.name" resolves to config('locales')['zh_CN']['name']
+        // and is accepted as a valid locale.
+        return is_string($locale) && array_key_exists($locale, config('locales', []));
     }
 }
