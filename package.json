@@ -5,6 +5,7 @@
   "description": "fix #684",
   "author": "Dainsleif",
   "namespace": "SysHub\\BSFix",
+  "license": "MIT",
   "require": {
     "blessing-skin-server": "^6"
   },
