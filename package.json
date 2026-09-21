@@ -1,0 +1,17 @@
+{
+  "name": "bs-fix",
+  "version": "1.0.0",
+  "title": "BS FIX",
+  "description": "fix #684",
+  "author": "Dainsleif",
+  "namespace": "SysHub\\BSFix",
+  "require": {
+    "blessing-skin-server": "^6"
+  },
+  "enchants": {
+    "icon": {
+      "bg": "red",
+      "fa": "bug"
+    }
+  }
+}
