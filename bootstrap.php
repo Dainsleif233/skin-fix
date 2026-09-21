@@ -7,6 +7,7 @@ use Illuminate\Contracts\Http\Kernel;
 use SysHub\BSFix\Controllers\EmailVerificationController;
 use SysHub\BSFix\Listeners\SendEmailVerification;
 use SysHub\BSFix\Listeners\SetAppLocale;
+use SysHub\BSFix\Middleware\EnsureRenderableLocale;
 use SysHub\BSFix\Middleware\SanitizeLang;
 
 return function (Dispatcher $events, Kernel $kernel) {
@@ -51,6 +52,10 @@ return function (Dispatcher $events, Kernel $kernel) {
 
     // Before DetectLanguagePrefer so a bad ?lang= never reaches core paths.
     $kernel->prependMiddleware(SanitizeLang::class);
+
+    // Appended, so it runs right after DetectLanguagePrefer: whatever the
+    // application locale ended up being, it has to be renderable.
+    $kernel->pushMiddleware(EnsureRenderableLocale::class);
 
     // ------------------------------------------------------------------ #676 --
     // The core listener mails a link that is signed for the user ID only and

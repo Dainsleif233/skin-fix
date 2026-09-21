@@ -4,7 +4,6 @@ namespace SysHub\BSFix\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class SanitizeLang
 {
@@ -20,6 +19,9 @@ class SanitizeLang
 
     protected function isValid($locale): bool
     {
-        return is_string($locale) && Arr::has(config('locales'), $locale);
+        // array_key_exists() rather than Arr::has(): Arr::has() resolves the
+        // given key as a dot path, so "zh_CN.name" would be accepted and then
+        // persisted into users.locale, which is the very thing #684 is about.
+        return is_string($locale) && array_key_exists($locale, config('locales', []));
     }
 }

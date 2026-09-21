@@ -4,7 +4,7 @@ namespace SysHub\BSFix\Listeners;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
+use SysHub\BSFix\Support\LocaleDirectory;
 
 class SetAppLocale
 {
@@ -42,11 +42,24 @@ class SetAppLocale
             return null;
         }
 
-        $info = Arr::get(config('locales'), $locale);
-        if (is_array($info) && ($alias = Arr::get($info, 'alias'))) {
+        $locales = config('locales', []);
+
+        // array_key_exists() rather than Arr::has(): Arr::has() resolves the
+        // given key as a dot path, so "zh_CN.name" would pass the gate and be
+        // persisted into users.locale.
+        if (!array_key_exists($locale, $locales)) {
+            return null;
+        }
+
+        $info = $locales[$locale];
+        $alias = is_array($info) ? ($info['alias'] ?? null) : null;
+
+        if (is_string($alias) && array_key_exists($alias, $locales)) {
             $locale = $alias;
         }
 
-        return Arr::has(config('locales'), $locale) ? $locale : null;
+        // Nothing outside of the locale directories may be stored, otherwise
+        // the value breaks every later page render.
+        return LocaleDirectory::has($locale) ? $locale : null;
     }
 }
